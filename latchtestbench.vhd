@@ -17,28 +17,30 @@ SIGNAL ip : bit :='0';
 SIGNAL clock: bit :='0'; 
 SIGNAL op: bit :='0';
 SIGNAL nop : bit :='0';
-BEGIN
-	---dut: latch PORT MAP (d=>ip,clk=>clock,q=>op,nq=>nop);  
+BEGIN  
 	dut: ENTITY work.latch(behav) PORT MAP (d=>ip,clk=>clock,q=>op,nq=>nop);
 	p: PROCESS IS								 
 	BEGIN
 		ip <= '1';
 		clock <= '0'; WAIT FOR 10 ns;
 		clock <= '1'; WAIT FOR 10 ns;
-		ASSERT op = '1'
+		ASSERT op = '1' and nop = '0'
 		REPORT "ERROR 1!" 
 		SEVERITY error;
-		ASSERT nop = '0'
+		ip <= '0'; WAIT FOR 10 ns;
+		ASSERT op = '0' and nop = '1'
 		REPORT "ERROR 2!"
 		SEVERITY error;
-		ip <= '0'; WAIT FOR 10 ns;
-		ASSERT op = '0'
+        clock <= '0'; WAIT FOR 10 ns;
+        ASSERT op = '0' and nop = '1'
 		REPORT "ERROR 3!"
-		SEVERITY error;	 
-		ASSERT nop = '1'
+		SEVERITY error;
+		ip <= '1'; WAIT FOR 10 ns;
+        ASSERT op = '0' and nop = '1'
 		REPORT "ERROR 4!"
 		SEVERITY error;
-        WAIT;
+	
+		WAIT;
 		
 	END PROCESS p;
 
